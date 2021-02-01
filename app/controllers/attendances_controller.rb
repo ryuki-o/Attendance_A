@@ -35,14 +35,15 @@ class AttendancesController < ApplicationController
         attendance = Attendance.find(id)
         attendance.update_attributes!(item)
       end
-    end
+  end
+    
     flash[:success] = "1ヶ月分の勤怠情報を更新しました。"
     redirect_to user_url(date: params[:date])
   rescue ActiveRecord::RecordInvalid # トランザクションによるエラーの分岐です。
     flash[:danger] = "無効な入力データがあった為、更新をキャンセルしました。"
     redirect_to attendances_edit_one_month_user_url(date: params[:date])
   end
-
+  
   private
 
     # 1ヶ月分の勤怠情報を扱います。

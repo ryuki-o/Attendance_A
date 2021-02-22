@@ -6,7 +6,7 @@ class UsersController < ApplicationController
   before_action :set_one_month, only: :show
 
   def index
-    @users = User.paginate(page: params[:page])
+    @users = User.paginate(page: params[:page]).search(params[:search])
   end
 
   def show
@@ -47,6 +47,9 @@ class UsersController < ApplicationController
   end
 
   def edit_basic_info
+    if current_user.admin?
+      @user = User.find(params[:id])
+    end
   end
 
   def update_basic_info
@@ -66,5 +69,10 @@ class UsersController < ApplicationController
 
     def basic_info_params
       params.require(:user).permit(:department, :basic_time, :work_time)
+    end
+    
+    def search
+    #Viewのformで取得したパラメータをモデルに渡す
+    @users = User.search(params[:search])
     end
 end

@@ -9,12 +9,8 @@ class Attendance < ApplicationRecord
   # 出勤・退勤時間どちらも存在する時、出勤時間より早い退勤時間は無効
   validate :started_at_than_finished_at_fast_if_invalid
   
-  validate :started_at_is_invalid_without_a_finished_at, on: :update_one_month
+  validate :started_at_is_invalid_without_a_finished_at, on: :attendance_update
   
-   with_options on: :update_one_month? do
-    validate :started_at_is_invalid_without_a_finished_at
-  end
-
   def finished_at_is_invalid_without_a_started_at
     errors.add(:started_at, "が必要です") if started_at.blank? && finished_at.present?
   end
@@ -26,7 +22,7 @@ class Attendance < ApplicationRecord
   end
   
   def started_at_is_invalid_without_a_finished_at
-    errors.add(:finished_at, "が必要です") if started_at.present? && finished_at.blank?(context: :pattern_validation)
+    errors.add(:finished_at, "が必要です") if started_at.present? && finished_at.blank?
   end
   
 end

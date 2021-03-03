@@ -64,7 +64,7 @@
           <td><%= format_min(day.started_at) if day.started_at.present? %></td>
           <td>
             <% if btn_text = attendance_state(day) %>
-              <%= link_to "出社", user_attendance_path(@user, day), method: :patch, class: "btn btn-default active" %>
+              <%= link_to "#{btn_text}", user_attendance_path(@user, day), method: :patch, class: "btn btn-default active" %>
             <% end %>
           </td>
           <td><%= day.finished_at.hour if day.finished_at.present? %></td>

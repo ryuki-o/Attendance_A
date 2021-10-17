@@ -19,6 +19,15 @@
   </table>
 </div>
 
+<% if current_user.superior? %>
+  <div>
+    <p class="">【 所属長承認申請のお知らせ 】</p><br>
+    <p class="">【 勤怠変更申請のお知らせ 】</p><br>
+    <%= link_to"【 残業申請のお知らせ 】", attendances_edit_superior_announcement_user_path(@user), remote: true %><br>
+    <p class=""></p><br>
+  </div>
+<% end %>
+
 <div class="btn-users-show">
   <%= link_to "勤怠を編集", attendances_edit_one_month_user_path(date: @first_day), class: "btn btn-default active" %>
 </div>
@@ -28,13 +37,23 @@
     <thead>
       <tr>
         <th></th>
+        <th colspan="9">実績</th>
+        <th colspan="3">所定外勤務</th>
+      </tr>
+      <tr>
+        <th></th>
         <th></th>
         <th colspan="3">出社</th>
         <th colspan="2">退社</th>
         <th></th>
         <th></th>
+        <th></th>
+        <th rowspan="2">時間外時間</th>
+        <th rowspan="2">業務処理内容</th>
+        <th rowspan="2">支持者確認㊞</th>
       </tr>
       <tr>
+        <th></th>
         <th>日付</th>
         <th>曜日</th>
         <th>時</th>
@@ -50,6 +69,7 @@
     <tbody>
       <% @attendances.each do |day| %>
         <tr>
+          <td><%= link_to "残業申請", attendances_edit_overwork_request_user_path(@user, day: day.worked_on), remote: true, class: "btn btn-primary" %></td>
           <td><%= l(day.worked_on, format: :short) %></td>
           <td>
             <% if day.worked_on.wday == 0 %>
@@ -76,7 +96,10 @@
             <% end %>
           </td>
           <td><%= day.note %></td>
-        </tr>
+          <td></td>
+          <td></td>
+          <td></td>
+        </tr>  
       <% end %>
     </tbody>
     
@@ -89,6 +112,10 @@
         <td rowspan="2"></td>
         <td></td>
         <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td>所属長確認</td>
       </tr>
       <tr>
         <td colspan="2"><%= @attendances.count %></td>
@@ -96,7 +123,30 @@
         <td colspan="2"><%= format("%.2f", @total_working_times.to_f) %></td>
         <td></td>
         <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td><select class="form-control">
+          <option></option>
+        </select></td>
+      </tr>
+      <tr>
+        <td colspan="2"></td>
+        <td colspan="2"></td>
+        <td colspan="2"></td>
+        <td rowspan="2"></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td></td>
+        <td><%= link_to "申請", remote: true, class: "btn btn-primary" %></td>
       </tr>
     </tfoot>    
   </table>
 </div>
+
+<!--モーダルウインドウ表示-->
+<div id="edit-overwork-request" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>
+<div id="edit-superior-announcement" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>
+

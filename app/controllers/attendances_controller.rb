@@ -33,6 +33,7 @@ class AttendancesController < ApplicationController
     ActiveRecord::Base.transaction do # トランザクションを開始します。
       attendances_params.each do |id, item|
         attendance = Attendance.find(id)
+        attendance.update_attributes!(item)
         attendance.attributes = item
         attendance.save!(context: :attendance_update)
       end
@@ -43,17 +44,59 @@ class AttendancesController < ApplicationController
     flash[:danger] = "無効な入力データがあった為、更新をキャンセルしました。"
     redirect_to attendances_edit_one_month_user_url(date: params[:date])
   end
-
+  
+  def edit_overwork_request
+    @day = Date.parse(params[:day])
+    @user = User.find(params[:id])
+    @attendance = @user.attendances.find_by(worked_on: @day)
+  end
+  
+  def update_overwork_request
+    @day = Date.parse(params[:day])
+    @user = User.find(params[:id])
+    @attendance = @user.attendances.find_by(worked_on: @day)
+    @attendance.update_attributes(overwork_params)
+    flash[:success] = "残業を申請しました。"
+    redirect_to @user
+  end
+  
+  # 残業申請承認モーダル
+  def edit_superior_announcement
+    @user = User.find(params[:id])
+    @attendances = Attendance.where(confirmation: '申請中', instructor_confirmation: @user.id).order(:user_id).group_by(&:user_id)
+  end
+  
+  
+  def update_superior_announcement
+    ActiveRecord::Base.transaction do
+      @overtime_status = Attendance.where(overtime_status: "申請中").count
+      @overtime_status1 = Attendance.where(overtime_status: "承認").count
+      @overtime_status2 = Attendance.where(overtime_status: "否認").count
+      @overtime_status3 = Attendance.where(overtime_status: "なし").count
+      @user = User.find(params[:user_id])
+      attendances_params.each do |id, item|
+        attendance = Attendance.find(id)
+        attendance.update_attributes!(item)
+      end
+    end
+    flash[:success] = "残業申請→申請中を#{@overtime_status}件、承認を#{@overtime_status1}件、否認を#{@overtime_status2}件、なしを#{@overtime_status3}件送信しました。"
+    redirect_to user_url(@user)
+  rescue ActiveRecord::RecordInvalid
+    flash[:danger] = "無効な入力データがあった為、更新をキャンセルしました。"
+    redirect_to user_url(@user)
+  end
+  
+  
   private
 
-    # 1ヶ月分の勤怠情報を扱います。
     def attendances_params
       params.require(:user).permit(attendances: [:started_at, :finished_at, :note])[:attendances]
     end
-
-    # beforeフィルター
-
-    # 管理権限者、または現在ログインしているユーザーを許可します。
+    
+    def overwork_params
+      params.require(:attendance).permit(:scheduled_end_time, :next_day, :business_process, :confirmation, :instructor_confirmation)
+    end
+    
     def admin_or_correct_user
       @user = User.find(params[:user_id]) if @user.blank?
       unless current_user?(@user) || current_user.admin?

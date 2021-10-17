@@ -1,0 +1,48 @@
+<%= form_with(model: @attendance, url:attendances_update_overwork_request_user_path(@user,day:@day), local: true, method: :patch) do |f| %>
+  <div class="modal-dialog modal-lg modal-dialog-center">
+   <div class="modal-content">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <h1 class="modal-title">残業申請</h1>
+    </div>
+    <div class="modal-body">
+      <div class="row">
+        <div class="col-md-10 col-md-offset-1">
+          <table class="table table-bordered table-condensed table-striped user-table">
+            <thead>
+              <th>日付</th>
+              <th>曜日</th>
+              <th>終了予定時間</th>
+              <th>翌日</th>
+              <th>業務処理内容</th>
+              <th>支持者確認㊞</th>
+            </thead>
+            
+            <tbody>
+                  <td><%= l(@day, format: :short) %></td>
+                  <% if @day.wday == 6 %>
+                    <td class="sat"><%= $days_of_the_week[@day.wday] %>
+                  <% elsif @day.wday == 0 %>
+                    <td class="sun"><%= $days_of_the_week[@day.wday] %>
+                  <% else %>
+                    <td><%= $days_of_the_week[@day.wday] %></td>
+                  <% end %>
+                  <td><%= f.time_field :scheduled_end_time, class: "form-control" %></td>
+                  <td><%= f.check_box :next_day, id: "next_day" %></td>
+                  <td><%= f.text_field :business_process, class: "form-control" %></td>
+                  <td><%= f.select :confirmation, [["なし", "なし"], ["申請中", "申請中"], ["承認", "承認"], ["否認", "否認"]], class: "form-control" %></td>
+                  <td><%= f.select :instructor_confirmation, [["上長", 2]], class: "form-control" %></td>
+            </tbody>
+          </table>
+          
+          <div class="center">
+            <%= f.submit "変更を送信する", class: "btn btn-primary btn-block btn-user" %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<% end %>

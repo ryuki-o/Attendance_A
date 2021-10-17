@@ -1,0 +1,57 @@
+<%= form_with(model: @attendance, url:attendances_edit_superior_announcement_user_path(@user), local: true, method: :patch) do |f| %>
+  <div class="modal-dialog modal-lg modal-dialog-center">
+    <div class="modal-content">
+      <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+      </button>
+      <% @attendances.each do |id, items| %>
+        <% user = User.find(id) %>
+        <h1 class="modal-title"> 【 <%= user.name %>からの残業申請】</h1>
+        <div class="modal-body">
+          <table class="table table-bordered table-condensed table-hover" id="table-overwork-day">
+            <thead>
+              <tr>
+                <th>日付</th>
+                <th>曜日</th>
+                <th>終了予定時間</th>
+                <th>時間外勤務</th>
+                <th>業務処理内容</th>
+                <th>指示者確認㊞</th>
+                <th>変更</th>
+                <th>勤怠を確認する</th>
+              </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <% items.each do |item| %>
+                <%= f.fields_for "attendances[]", item do |attendance| %>
+                  <td><%= l(item.worked_on, format: :short) %></td>
+                  <td>
+                    <% if item.worked_on.wday == 0 %>
+                      <font color="RED"><%= $days_of_the_week[item.worked_on.wday] %></font>
+                    <% elsif item.worked_on.wday == 6 %>
+                      <font color="Blue"><%= $days_of_the_week[item.worked_on.wday] %></font>
+                    <% else %>
+                      <%= $days_of_the_week[item.worked_on.wday] %>
+                    <% end %>  
+                  </td>
+                  <td><%= item.scheduled_end_time %></td>
+                  <td><%= item.next_day %></td>
+                  <td><%= item.business_process %></td>
+                  <td><%= attendance.select :confirmation, [["なし", "なし"], ["申請中", "申請中"], ["承認", "承認"], ["否認", "否認"]], class: "form-control" %></td>
+                  <!--<td>< %= attendance.check_box :, id: "next_day" %></td>-->
+                <% end %>
+              <% end %>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      <% end %>
+      <div class="button_wrapper">
+        <%= f.submit "変更を送信する", class: "btn btn-primary btn-block btn-user" %>
+      </div>
+      </div>
+    </div>
+  </div>
+<% end %>

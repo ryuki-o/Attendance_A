@@ -60,7 +60,8 @@ class UsersController < ApplicationController
     end
     redirect_to users_url
   end
-
+  
+  
   private
 
     def user_params
@@ -70,6 +71,8 @@ class UsersController < ApplicationController
     def basic_info_params
       params.require(:user).permit(:department, :basic_time, :work_time)
     end
+    
+    
     
     def search
     #Viewのformで取得したパラメータをモデルに渡す

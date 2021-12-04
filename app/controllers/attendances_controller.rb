@@ -88,7 +88,7 @@ class AttendancesController < ApplicationController
     @user = User.find(params[:id])
     @attendance = Attendance.find(params[:id])
     # @attendances = Attendance.where(confirmation: '承認', instructor_confirmation: @user.id).order(:user_id).group_by(&:user_id)
-    
+    debugger
     
     if @attendance.confirmation = "申請中"
       flash[:danger] = "指示者確認が申請中のままです。"

@@ -1,4 +1,4 @@
-<%= form_with(model: @attendance, url:attendances_edit_superior_announcement_user_path(@user), local: true, method: :patch) do |f| %>
+<%= form_with(model: @attendance, url:attendances_update_superior_announcement_user_path(@user), local: true, method: :patch) do |f| %>
   <div class="modal-dialog modal-lg modal-dialog-center">
     <div class="modal-content">
       <div class="modal-header">
@@ -15,7 +15,8 @@
                 <th>日付</th>
                 <th>曜日</th>
                 <th>終了予定時間</th>
-                <th>時間外勤務</th>
+                <th>指定勤務終了時間</th>
+                <th>時間外時間</th>
                 <th>業務処理内容</th>
                 <th>指示者確認㊞</th>
                 <th>変更</th>
@@ -23,9 +24,9 @@
               </tr>
             </thead>
             <tbody>
-            <tr>
               <% items.each do |item| %>
                 <%= f.fields_for "attendances[]", item do |attendance| %>
+            <tr>
                   <td><%= l(item.worked_on, format: :short) %></td>
                   <td>
                     <% if item.worked_on.wday == 0 %>
@@ -36,11 +37,21 @@
                       <%= $days_of_the_week[item.worked_on.wday] %>
                     <% end %>  
                   </td>
-                  <td><%= item.scheduled_end_time %></td>
-                  <td><%= item.next_day %></td>
+                  <td>
+                    <% unless item.scheduled_end_time.nil? %>
+                      <%= l(item.scheduled_end_time, format: :time) %>
+                    <% end %>
+                  </td>
+                  <td><%= l(user.designated_work_end_time, format: :time) %></td>
+                  <td>
+                    <% if item.scheduled_end_time.present? && user.designated_work_end_time.present? %>
+                      <%= overtime_status(item.scheduled_end_time, user.designated_work_end_time) %>
+                    <% end %>
+                  </td>
                   <td><%= item.business_process %></td>
                   <td><%= attendance.select :confirmation, [["なし", "なし"], ["申請中", "申請中"], ["承認", "承認"], ["否認", "否認"]], class: "form-control" %></td>
-                  <!--<td>< %= attendance.check_box :, id: "next_day" %></td>-->
+                  <td><%= attendance.check_box :change, id: "change" %></td>
+                  <td><%= link_to "勤怠を確認", attendances_month_approval_user_path(user), class: "btn btn-default active" %></td>
                 <% end %>
               <% end %>
             </tr>
@@ -49,7 +60,7 @@
         </div>
       <% end %>
       <div class="button_wrapper">
-        <%= f.submit "変更を送信する", class: "btn btn-primary btn-block btn-user" %>
+        <%= f.submit "変更を送信する", remote: true, class: "btn btn-primary btn-block btn-user" %>
       </div>
       </div>
     </div>

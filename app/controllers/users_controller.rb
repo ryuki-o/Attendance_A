@@ -10,7 +10,9 @@ class UsersController < ApplicationController
   end
 
   def show
+    @user = User.find(params[:id])
     @worked_sum = @attendances.where.not(started_at: nil).count
+    @attendance = Attendance.where(confirmation: '申請中')
   end
 
   def new
@@ -62,10 +64,12 @@ class UsersController < ApplicationController
   end
   
   
+  
+  
   private
 
     def user_params
-      params.require(:user).permit(:name, :email, :department, :password, :password_confirmation)
+      params.require(:user).permit(:name, :email, :department, :designated_work_end_time, :designated_work_start_time, :password, :password_confirmation)
     end
 
     def basic_info_params

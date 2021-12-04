@@ -21,3 +21,9 @@ ja:
           finished_at: 退勤時間
           note: 備考
           user: ユーザーID
+          scheduled_end_time: 終了予定時間
+          next_day: 翌日
+          business_process: 業務処理内容
+          confirmation: 指示者確認㊞
+          change: 変更
+          instructor_confirmation: 申請先

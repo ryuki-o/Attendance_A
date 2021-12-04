@@ -15,6 +15,11 @@ module AttendancesHelper
     format("%.2f", (((finish - start) / 60) / 60.0))
   end
   
+  # 時間外時間の計算
+  def overtime_status(scheduled_end_time, designated_work_end_time)
+    format("%.2f", (((scheduled_end_time - designated_work_end_time) / 60) / 60.0))
+  end
+  
   def format_min(time)
     format("%.2d",((time.strftime('%M').to_i / 15).round) * 15)
   end

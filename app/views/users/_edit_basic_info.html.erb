@@ -16,7 +16,7 @@
             <%= render 'shared/error_messages', object: @user %>
 
             <%= f.label :name, class: "label-#{yield(:class_text)}" %>
-            <p><%= @user.name %></p>
+            <p><%= @user.name %></p><br>
 
             <%= f.label :department, class: "label-#{yield(:class_text)}" %>
             <%= f.text_field :department, class: "form-control" %>

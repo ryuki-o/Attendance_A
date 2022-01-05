@@ -1,0 +1,33 @@
+
+<%= form_with(model:@user,local: true) do |f| %>
+
+
+  <%= f.label :name, class: "label-#{yield(:class_text)}" %>
+  <%= f.text_field :name, class: "form-control" %>
+  
+  <%= f.label :email, class: "label-#{yield(:class_text)}" %>
+  <%= f.text_field :email, class: "form-control" %>
+  
+  <%= f.label :department, class: "label-#{yield(:class_text)}" %>
+  <%= f.text_field :department, class: "form-control" %>
+  
+  <%= f.label :employee_number, class: "label-#{yield(:class_text)}" %>
+  <%= f.text_field :employee_number, class: "form-control" %>
+  
+  <%= f.label :user_id, class: "label-#{yield(:class_text)}" %>
+  <%= f.text_field :user_id, class: "form-control" %>
+  
+  <%= f.label :password, class: "label-#{yield(:class_text)}" %>
+  <%= f.text_field :password, class: "form-control" %>
+  
+  <%= f.label :basic_time, class: "label-#{yield(:class_text)}" %>
+  <%= f.text_field :basic_time, class: "form-control" %>
+  
+  <%= f.label :designated_work_start_time, class: "label-#{yield(:class_text)}" %>
+  <%= f.text_field :designated_work_start_time, class: "form-control" %>
+  
+  <%= f.label :designated_work_end_time, class: "label-#{yield(:class_text)}" %>
+  <%= f.text_field :designated_work_end_time, class: "form-control" %>
+  
+  <%= f.submit "編集する", class: "btn btn-primary btn-block btn-#{yield(:class_text)}" %>
+<% end %>

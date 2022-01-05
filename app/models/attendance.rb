@@ -26,4 +26,33 @@ class Attendance < ApplicationRecord
     errors.add(:finished_at, "が必要です") if started_at.present? && finished_at.blank?
   end
   
+  DeliveryType = {
+    "申請中" => "applying",
+    "承認" => "approval",
+    "否認" => "cancel",
+  }
+  
+  DeliveryTypePattern = {
+    "approval" => {status: :success, message: "承認完了しました。"},
+    "applying" => {status: :danger, message: "指示者確認が申請中のままです。"},
+    "unknown" => {status: :danger, message: "不正なステータスが送信されました。"},
+    "cancel" => {status: :danger, message: "残業申請が否認されました。"}
+  }
+  
+  def export_confirm_result(status)
+    if status == DeliveryType["approval"]
+      DeliveryTypePattern["approval"]
+    elsif status == DeliveryType["applying"]
+      DeliveryTypePattern["applying"]
+    elsif status == DeliveryType["cancel"]
+      DeliveryTypePattern["cancel"]
+    else
+      DeliveryTypePattern["unknown"]
+    end
+  end
+  
+  def self.confirm_approval?(string)
+    string == DeliveryType.find {|k,v| v == "approval" }
+  end
 end
+

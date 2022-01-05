@@ -86,32 +86,51 @@ class AttendancesController < ApplicationController
   
   def update_superior_announcement
     @user = User.find(params[:id])
-    @attendance = Attendance.find(params[:id])
-    # @attendances = Attendance.where(confirmation: '承認', instructor_confirmation: @user.id).order(:user_id).group_by(&:user_id)
-    debugger
-    
-    if @attendance.confirmation = "申請中"
-      flash[:danger] = "指示者確認が申請中のままです。"
+    @status_messages = [:danger, :message, "不正なステータスが送信されました。",
+                        :success, :message, "残業申請承認完了しました。"]
+    status_message = {}
+    ActiveRecord::Base.transaction do
+      begin
+        @attendances = Attendance.where(confirmation: "申請中")
+                                 .where(instructor_confirmation: params[:id])
+                                 .where(id: params[:attendance][:attendances].keys)
+                                 
+        @attendances.each do |attendance|
+          status_message = attendance.export_confirm_result(params[:attendance][:attendances][attendance.id.to_s][:confirmation])
+          if Attendance.confirm_approval?(params[:attendance][:attendances][attendance.id.to_s][:confirmation])
+          @attendance.save!(overwork_params)
+          flash[status_message[:success]] << status_message[:message]
+          end
+        end
+      rescue => e
+        flash[status_message[:danger]] << status_message[:message]
+        puts e
+      end
       redirect_to user_url(@user) and return
     end
     
-    if @attendance.confirmation = "承認"
-      @attendance.save!
-      flash[:success] = "#{@attendance.instructor_confirmation}による残業承認完了しました。"
-      redirect_to user_url(@user) and return
-    end
     
-    if @attendance.update_attributes(overwork_params)
+   # if @attendance.confirmation = "申請中"
+    #  flash[:danger] = "指示者確認が申請中のままです。"
+     # redirect_to user_url(@user) and return
+    #end
+    
+    #if @attendance.confirmation = "承認"
+     # @attendance.save!
+      #flash[:success] = "#{@attendance.instructor_confirmation}による残業承認完了しました。"
+      #redirect_to user_url(@user) and return
+  #  end
+    
+  #  if @attendance.update_attributes(overwork_params)
       # 更新成功時の処理
-      flash[:success] = "#{@user.name}の残業申請は承認されました。"
-      redirect_to user_url(@user)
-    else
+   #   flash[:success] = "#{@user.name}の残業申請は承認されました。"
+    #  redirect_to user_url(@user)
+    #else
       # 更新失敗時の処理
-      flash[:danger] = "#{@user.name}の申請が失敗しました。" + @user.errors.full_messages.join(" 、")
-      redirect_to user_url(@user)
-    end
-      
-  end
+     # flash[:danger] = "#{@user.name}の申請が失敗しました。" + @user.errors.full_messages.join(" 、")
+      #redirect_to user_url(@user)
+    #end
+  end    
   
   # 勤怠申請モーダルの確認ボタン
   def month_approval

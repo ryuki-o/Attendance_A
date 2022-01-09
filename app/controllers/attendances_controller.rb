@@ -86,28 +86,38 @@ class AttendancesController < ApplicationController
   
   def update_superior_announcement
     @user = User.find(params[:id])
-    @status_messages = [:danger, :message, "不正なステータスが送信されました。",
-                        :success, :message, "残業申請承認完了しました。"]
-    status_message = {}
-    ActiveRecord::Base.transaction do
-      begin
-        @attendances = Attendance.where(confirmation: "申請中")
-                                 .where(instructor_confirmation: params[:id])
-                                 .where(id: params[:attendance][:attendances].keys)
-                                 
-        @attendances.each do |attendance|
-          status_message = attendance.export_confirm_result(params[:attendance][:attendances][attendance.id.to_s][:confirmation])
-          if Attendance.confirm_approval?(params[:attendance][:attendances][attendance.id.to_s][:confirmation])
-          @attendance.save!(overwork_params)
-          flash[status_message[:success]] << status_message[:message]
-          end
-        end
-      rescue => e
-        flash[status_message[:danger]] << status_message[:message]
-        puts e
+    attendance_ids = params[:attendance][:attendances].keys # ["59", "89", "119"]
+    attendance_ids.each do |id|
+      if params[:attendance][:attendances][id]["confirmation"] == "承認"
+        Attendance.find(id).update!(apply_overwork_params)
+      else
+        flash[:danger] = "不正なステータスが送信されました。"
+        redirect_to user_url(@user) and return
       end
-      redirect_to user_url(@user) and return
     end
+  #  @user = User.find(params[:id])
+    # @status_messages = [:danger, :message, "不正なステータスが送信されました。",
+    #                     :success, :message, "残業申請承認完了しました。"]
+    # status_message = {}
+    # ActiveRecord::Base.transaction do
+    #   begin
+    #     @attendances = Attendance.where(confirmation: "申請中")
+    #                             .where(instructor_confirmation: params[:id])
+    #                             .where(id: params[:attendance][:attendances].keys)
+                                 
+    #     @attendances.each do |attendance|
+          
+    #       status_message = attendance.export_confirm_result(params[:attendance][:attendances][attendance.id.to_s][:confirmation])
+    #       if Attendance.confirm_approval?(params[:attendance][:attendances][attendance.id.to_s][:confirmation])
+    #       @attendance.save!(overwork_params)
+    #       flash[status_message[:success]] << status_message[:message]
+    #       end
+    #     end
+    #   rescue => e
+    #     flash[status_message[:danger]] << status_message[:message]
+    #     puts e
+    #   end
+  end
     
     
    # if @attendance.confirmation = "申請中"
@@ -130,7 +140,6 @@ class AttendancesController < ApplicationController
      # flash[:danger] = "#{@user.name}の申請が失敗しました。" + @user.errors.full_messages.join(" 、")
       #redirect_to user_url(@user)
     #end
-  end    
   
   # 勤怠申請モーダルの確認ボタン
   def month_approval
@@ -153,6 +162,10 @@ class AttendancesController < ApplicationController
       params.require(:attendance).permit(:scheduled_end_time, :next_day, :overtime_status, :business_process, :confirmation, :change, :instructor_confirmation)
     end
     
+    def apply_overwork_params
+      params.require(:attendance).permit(attendances: [:confirmation, :change])[:attendances]
+    end
+    
     def admin_or_correct_user
       @user = User.find(params[:user_id]) if @user.blank?
       unless current_user?(@user) || current_user.admin?
@@ -160,4 +173,5 @@ class AttendancesController < ApplicationController
         redirect_to(root_url)
       end  
     end
+  
 end

@@ -89,7 +89,9 @@ class AttendancesController < ApplicationController
     attendance_ids = params[:attendance][:attendances].keys # ["59", "89", "119"]
     attendance_ids.each do |id|
       if params[:attendance][:attendances][id]["confirmation"] == "承認"
-        Attendance.find(id).update!(apply_overwork_params)
+        Attendance.find(id).update!(confirmation: "承認")
+        flash[:success] = "残業申請承認完了しました。"
+        redirect_to user_url(@user) and return
       else
         flash[:danger] = "不正なステータスが送信されました。"
         redirect_to user_url(@user) and return
@@ -161,10 +163,7 @@ class AttendancesController < ApplicationController
     def overwork_params
       params.require(:attendance).permit(:scheduled_end_time, :next_day, :overtime_status, :business_process, :confirmation, :change, :instructor_confirmation)
     end
-    
-    def apply_overwork_params
-      params.require(:attendance).permit(attendances: [:confirmation, :change])[:attendances]
-    end
+  
     
     def admin_or_correct_user
       @user = User.find(params[:user_id]) if @user.blank?

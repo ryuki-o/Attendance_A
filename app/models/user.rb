@@ -4,7 +4,7 @@ class User < ApplicationRecord
   attr_accessor :remember_token
   before_save { self.email = email.downcase }
 
-  validates :name, presence: true, length: { maximum: 50 }
+  validates :name, presence: true, uniqueness: true, length: { maximum: 50 }
 
   VALID_EMAIL_REGEX = /\A[\w+\-.]+@[a-z\d\-.]+\.[a-z]+\z/i
   validates :email, presence: true, length: { maximum: 100 },
@@ -58,5 +58,27 @@ class User < ApplicationRecord
     else
       all #全て表示。User.は省略
     end
+  end
+  
+    #importメソッド
+  def self.import(file)
+    ApplicationRecord.transaction do
+    CSV.foreach(file.path, headers: true) do |row|
+      # IDが見つかれば、レコードを呼び出し、見つかれなければ、新しく作成
+      user = find_by(id: row["id"]) || new
+      # CSVからデータを取得し、設定する
+      user.attributes = row.to_hash.slice(*updatable_attributes)
+      user.save!
+    rescue ActiveRecord::RecordInvalid
+      false
+    end
+   end
+  end
+  
+  # 更新を許可するカラムを定義
+  def self.updatable_attributes
+    ["name", "user_id", "email", "department", 
+     "basic_time", "designated_work_start_time",
+     "designated_work_end_time", "password"]
   end
 end

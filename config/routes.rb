@@ -8,18 +8,21 @@ Rails.application.routes.draw do
   delete '/logout', to: 'sessions#destroy'
 
   resources :users do
-    member do
-      get 'edit_basic_info'
-      patch 'update_basic_info'
-      get 'attendances/edit_one_month'
-      patch 'attendances/update_one_month' 
-      get 'attendances/edit_overwork_request'
-      patch 'attendances/update_overwork_request'
-      get 'attendances/edit_superior_announcement'
-      patch 'attendances/update_superior_announcement'
-      get 'attendances/month_approval'
-      
+    collection {post :import}
+      member do
+        get 'edit_basic_info'
+        patch 'update_basic_info'
+        get 'attendances/edit_one_month'
+        patch 'attendances/update_one_month' 
+        get 'attendances/edit_overwork_request'
+        patch 'attendances/update_overwork_request'
+        get 'attendances/edit_superior_announcement'
+        patch 'attendances/update_superior_announcement'
+        get 'attendances/month_approval'
+      end
+      collection do
+        get 'index_attendance'
+      end
+      resources :attendances, only: :update
     end
-    resources :attendances, only: :update
-  end
 end
